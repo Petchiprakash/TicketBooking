@@ -5,40 +5,44 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 
-class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
-    private var title = listOf("Maanaadu","Annaatthe","Master")
-    private var details = listOf("Tamil U/A","Tamil U","Tamil U/A")
-    private val images = listOf(R.drawable.maanaadu_vp,R.drawable.annaathae,R.drawable.master)
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerAdapter.ViewHolder {
+class MyAdapter(private val moviesList: ArrayList<Movies>) :
+    RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+    private lateinit var mylistener: OnItemClickListener
+
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
+    }
+
+    fun setOnItemClickListner(listener: OnItemClickListener) {
+        mylistener = listener
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.card_layout, parent, false)
-        return ViewHolder(v)
+        return MyViewHolder(v,mylistener)
+    }
+
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        val currentItem = moviesList[position]
+        holder.textTitle.text = currentItem.title
+        holder.itemDetail.text = currentItem.titleDescription
+        holder.itemImage.setImageResource(currentItem.titleImage)
     }
 
     override fun getItemCount(): Int {
-        return title.size
+        return moviesList.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.textTitle.text = title[position]
-        holder.itemDetail.text = details[position]
-        holder.itemImage.setImageResource(images[position])
-    }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var itemImage: ImageView
-        var textTitle: TextView
-        var itemDetail: TextView
+    class MyViewHolder(itemView: View,listener: OnItemClickListener) : RecyclerView.ViewHolder(itemView) {
+        var itemImage: ImageView = itemView.findViewById(R.id.imgItem)
+        var textTitle: TextView = itemView.findViewById(R.id.txtTitle)
+        var itemDetail: TextView = itemView.findViewById(R.id.tvDescription)
         init {
-            itemImage = itemView.findViewById(R.id.imgItem)
-            textTitle = itemView.findViewById(R.id.txtTitle)
-            itemDetail = itemView.findViewById(R.id.tvDescription)
-
             itemView.setOnClickListener{
-                val position: Int = adapterPosition
-                Toast.makeText(itemView.context,"You have chosen ${title[position]}",Toast.LENGTH_LONG).show()
+                listener.onItemClick(adapterPosition)
             }
         }
     }
